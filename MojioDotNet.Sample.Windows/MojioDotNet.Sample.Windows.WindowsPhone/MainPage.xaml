@@ -17,9 +17,6 @@
         </TransitionCollection>
     </Page.Transitions>
     <Grid>
-        <StackPanel Visibility="{Binding IsNotAuthenticVisibility}" >
-            <TextBlock>Something went terribly wrong, please restart the application and try again.</TextBlock>
-        </StackPanel>
         <Pivot Visibility="{Binding IsAuthenticVisibility}" x:Uid="Pivot" Title="mojio" x:Name="pivot" CommonNavigationTransitionInfo.IsStaggerElement="True">
             <PivotItem 
 				    x:Uid="PivotItem1"

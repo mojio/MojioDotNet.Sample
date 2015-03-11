@@ -8,6 +8,44 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Hub Visibility="{Binding IsAuthenticVisibility}">
+            <HubSection>
+                <DataTemplate>
+                <ScrollViewer>
+                    
+                    <Grid >
+                        <TextBlock
+								    Text="{Binding HeaderText}" Visibility="{Binding HeaderVisibility}"
+								    TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"
+								    Style="{ThemeResource SubheaderTextBlockStyle}"
+								    Margin="0,0,19,50" 
+                            />
+                        <ProgressRing Visibility="{Binding HeaderVisibility}" IsEnabled="True" IsActive="True"  />
+                        <ListView
+					    ItemsSource="{Binding ComposedVehicles}"
+					    IsItemClickEnabled="False"  Grid.Row="2">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,9.5">
+                                        <TextBlock
+									    Text="{Binding Vehicle.Name}"
+									    TextWrapping="Wrap"									   									  									    
+									    Margin="0,0,19,0"/>
+                                        <TextBlock
+									    Text="{Binding State}"
+									    TextWrapping="WrapWholeWords"
+									    Margin="0,0,19,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
 
+                    </Grid>
+                </ScrollViewer>
+                </DataTemplate>
+            </HubSection>
+            
+        </Hub>
     </Grid>
 </Page>
+    

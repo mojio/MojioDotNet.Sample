@@ -142,6 +142,10 @@
       <Project>{faeccbe3-5e0c-4140-90f0-ff35059673e9}</Project>
       <Name>Mojio</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\MojioDotNet.Sample.Cross\MojioDotNet.Sample.Cross.csproj">
+      <Project>{02314D61-8AB9-4CCB-91B9-7AA4201EA4FB}</Project>
+      <Name>MojioDotNet.Sample.Cross</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\MojioDotNet.Sample\MojioDotNet.Sample.projitems" Label="Shared" Condition="Exists('..\MojioDotNet.Sample\MojioDotNet.Sample.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />

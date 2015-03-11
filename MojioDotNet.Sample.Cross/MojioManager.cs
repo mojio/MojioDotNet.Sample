@@ -36,7 +36,7 @@ namespace MojioDotNet.Sample.Cross
         }
 
 
-        private MojioClient _client = new MojioClient(MojioClient.Live);
+        private MojioClient _client = new MojioClient("https://develop.api.moj.io/v1");
 
         public ApplicationConfiguration ApplicationConfiguration { get; set; }
 
@@ -67,6 +67,7 @@ namespace MojioDotNet.Sample.Cross
                 try
                 {
                     await _client.TokenAsync(_configuration.ApplicationId, OAuthToken.AccessToken);
+                    
                 }
                 catch (Exception)
                 {
@@ -133,10 +134,9 @@ namespace MojioDotNet.Sample.Cross
                     var o = new Observer(typeof(Event), typeof(Vehicle))
                     {
                         Transports = Transport.SignalR,
-                        ParentId = v.Vehicle.MojioId.Value,
-                        Status = ObserveStatus.Approved,
-                        SubjectId = v.Vehicle.Id,
-                        Parent = v.Vehicle.MojioId.Value.ToString(),
+                        ParentId = v.Vehicle.Id,
+                        Status = ObserveStatus.Approved,                        
+                        //Parent = v.Vehicle.Id.ToString()
                     };
                     try
                     {
@@ -149,12 +149,12 @@ namespace MojioDotNet.Sample.Cross
                                 {
                                     if (t.IsFaulted)
                                     {
-                                        Debug.WriteLine("Not watching for events for " + v.Vehicle.MojioId.Value);
+                                        Debug.WriteLine("Not watching for events for " + v.Vehicle.Name);
 
                                     }
                                     else
                                     {
-                                        Debug.WriteLine("Watching for events for " + v.Vehicle.MojioId.Value);                                        
+                                        Debug.WriteLine("Watching for events for " + v.Vehicle.Name);                                        
                                     }
                                 }).Wait();
                             }

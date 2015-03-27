@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 
 namespace MojioDotNet.Sample.Cross.Models
 {
@@ -32,10 +31,13 @@ namespace MojioDotNet.Sample.Cross.Models
         }
 
         public string ApplicationId { get; set; }
+
         public System.Uri RedirectUri { get; set; }
+
         public bool Live { get; set; }
+
         public string BingMapCredentials { get; set; }
+
         public System.Uri AuthorizeUri { get; set; }
     }
 }
-

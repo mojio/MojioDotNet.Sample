@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Mojio;
+using Mojio.Events;
 
 namespace MojioDotNet.Sample.Cross.Models
 {
@@ -12,8 +13,10 @@ namespace MojioDotNet.Sample.Cross.Models
 
         public ComposedVehicle()
         {
-            
+            EventHistory = new List<ComposedEvent>();
         }
+
+        public List<ComposedEvent> EventHistory { get; set; } 
 
         public string State
         {
@@ -128,7 +131,7 @@ namespace MojioDotNet.Sample.Cross.Models
 
                     return result;
                 }
-                return null;
+                return "No diagnostic issues to report";
             }
         }
         #region DTCCodes

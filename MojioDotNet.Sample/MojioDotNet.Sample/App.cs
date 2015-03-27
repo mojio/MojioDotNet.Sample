@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using MojioDotNet.Sample.Cross;
 using MojioDotNet.Sample.Cross.Models;
+using MojioDotNet.Sample.Droid.Views;
+using MojioDotNet.Sample.Views;
 using Xamarin.Forms;
 using Xamarin.Auth;
 
@@ -11,51 +13,20 @@ namespace MojioDotNet.Sample
 {
 	public class App : Application
 	{
-        private readonly MojioManager _manager = new MojioManager(new ApplicationConfiguration());
+        public static App Instance { get; private set; }
+	    public MojioManager  MojioManager { get; set; }
 
 	    public App()
 	    {
-            // The root page of your application
-            //MainPage = new ContentPage
-            //{
-            //    Content = new StackLayout
-            //    {
-            //        VerticalOptions = LayoutOptions.Center,
-            //        Children = {
-            //            new Label {
-            //                XAlign = TextAlignment.Center,
-            //                Text = "Welcome to Xamarin Forms!"
-            //            }
-            //        }
-            //    }
-            //};
-            //var auth = new OAuth2Authenticator(
-            //    clientId: _manager.ApplicationConfiguration.ApplicationId,
-            //    scope: "",
-            //    authorizeUrl: _manager.ApplicationConfiguration.AuthorizeUri,
-            //    redirectUrl: _manager.ApplicationConfiguration.RedirectUri                
-            //    );
-
-            //auth.Completed += (sender, eventArgs) =>
-            //{
-
-            //    if (eventArgs.IsAuthenticated)
-            //    {
-            //        // Use eventArgs.Account to do wonderful things
-            //    }
-            //};
-
-            //MainPage = auth.GetUI(this);
-
-	    }
+	        Instance = this;
+            MojioManager = new MojioManager(new ApplicationConfiguration());
+        }
 
 	    protected override void OnStart ()
 		{
 			// Handle when your app starts
-
-
-            
-		}
+            MainPage = new MainPage();
+        }
 
 		protected override void OnSleep ()
 		{

@@ -29,16 +29,13 @@ namespace MojioDotNet.Sample.Cross
             _configuration = configuration;
             IsAuthenticated = false;
 
-            _configuration.AuthorizeUri = _client.getAuthorizeUri(_configuration.ApplicationId,
-                _configuration.RedirectUri.ToString(), _configuration.Live);
+            _configuration.AuthorizeUri = _client.getAuthorizeUri(_configuration.ApplicationId, _configuration.RedirectUri.ToString(), _configuration.Live);
 
 
         }
 
 
-        private MojioClient _client = new MojioClient("https://develop.api.moj.io/v1");
-
-        public ApplicationConfiguration ApplicationConfiguration { get; set; }
+        private MojioClient _client = new MojioClient("https://api.moj.io/v1");
 
         private bool _isAuthenticated;
         public bool IsAuthenticated
@@ -100,6 +97,10 @@ namespace MojioDotNet.Sample.Cross
                 ComposedVehicles = composed;
                 Push(ComposedVehicles);
 
+                SetupObservers();
+
+
+
                 foreach (var v in ComposedVehicles)
                 {
                     try
@@ -113,7 +114,6 @@ namespace MojioDotNet.Sample.Cross
                 Push(ComposedVehicles);
 
 
-                SetupObservers();
             }
             catch (Exception e)
             {
@@ -122,85 +122,93 @@ namespace MojioDotNet.Sample.Cross
             }
         }
 
-
+       
         private async Task SetupObservers()
         {
-            _client.ObserveHandler += _client_ObserveHandler;
-
-            foreach (var v in this.ComposedVehicles)
+            Task.Factory.StartNew(() =>
             {
-                if (v.Vehicle.MojioId.HasValue)
+                while (true)
                 {
-                    var o = new Observer(typeof(Event), typeof(Vehicle))
-                    {
-                        Transports = Transport.SignalR,
-                        ParentId = v.Vehicle.Id,
-                        Status = ObserveStatus.Approved,                        
-                        //Parent = v.Vehicle.Id.ToString()
-                    };
+                    Task.Delay(1000).Wait();
+
                     try
                     {
-                        //lets not block for this, let it ride
-                        await _client.CreateAsync(o).ContinueWith(r =>
+                        foreach (var v in this.ComposedVehicles)
                         {
-                            if (!r.IsFaulted && r.Result != null && r.Result.Data != null)
+                            //var userEvents = _client.UserEventsAsync(this.User.Id, 1).Result;
+                            var vehicleEvents = _client.GetByAsync<Event, Vehicle>(v.Vehicle.Id, 0, "events", @event => @event.Time, true).Result;
+                            if (vehicleEvents.Data != null && vehicleEvents.Data.Data != null)
                             {
-                                _client.Observe(r.Result.Data).ContinueWith(t =>
+                                //Debug.WriteLine("received:{0} events", vehicleEvents.Data.Data.Count());
+                                var events = DeDupEvents(v, vehicleEvents.Data.Data);
+                                foreach (var e in events)
                                 {
-                                    if (t.IsFaulted)
-                                    {
-                                        Debug.WriteLine("Not watching for events for " + v.Vehicle.Name);
-
-                                    }
-                                    else
-                                    {
-                                        Debug.WriteLine("Watching for events for " + v.Vehicle.Name);                                        
-                                    }
-                                }).Wait();
+                                    Debug.WriteLine("handling:{0} events", events.Count());
+                                    HandleEvent(v, e);
+                                }
                             }
-                        });
+                            else
+                            {
+
+                            }
+                        }
+                        Push(ComposedVehicles);
+
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        //throw;
+                        
+                    }
+
+                }
+            });
+        }
+
+        private IEnumerable<Event> DeDupEvents(ComposedVehicle vehicle, IEnumerable<Event> incoming)
+        {
+            List<Event> noDups = new List<Event>();
+            if (incoming != null)
+            {
+                foreach (var e in incoming)
+                {
+                    var existing = (from evt in vehicle.EventHistory where evt.Id == e.Id select evt).FirstOrDefault();
+
+                    if (existing == null)
+                    {
+                        var composedEvent = new ComposedEvent() { Event = e };
+                        noDups.Add(e);
+                        vehicle.EventHistory.Add(composedEvent);
                     }
                 }
-                else
-                {
-
-                }
             }
+            return noDups;
         }
-        void _client_ObserveHandler(GuidEntity entity)
+
+        private void HandleEvent(ComposedVehicle vehicle, Event entity)
         {
-            if (entity is Event)
+            
+            var evt = entity as Event;
+            bool updated = false;
+
+            if (evt.Location != null)
             {
-                var evt = entity as Event;
-                var vehicle = VehicleById(evt.VehicleId);
-                bool updated = false;
-                
-                if (evt.Location != null)
-                {
-                    vehicle.Vehicle.LastLocation = evt.Location;
-                    updated = true;
-                }
-                if (evt.Accelerometer != null)
-                {
-                    vehicle.Vehicle.LastAccelerometer = evt.Accelerometer;
-                    updated = true;
-                }
-                if (evt.BatteryVoltage != null)
-                {
-                    vehicle.Vehicle.LastBatteryVoltage = evt.BatteryVoltage;
-                    updated = true;
-                }
-                //if (updated && OnVehicleUpdated != null) OnVehicleUpdated(vehicle);
-                //if (vehicle.Vehicle.Id == SelectedVehicle.Vehicle.Id) OnPropertyChanged("SelectedVehicle");
-
-                Push(ComposedVehicles);
-
-
+                vehicle.Vehicle.LastLocation = evt.Location;
+                updated = true;
             }
+            if (evt.Accelerometer != null)
+            {
+                vehicle.Vehicle.LastAccelerometer = evt.Accelerometer;
+                updated = true;
+            }
+            if (evt.BatteryVoltage != null)
+            {
+                vehicle.Vehicle.LastBatteryVoltage = evt.BatteryVoltage;
+                updated = true;
+            }
+            //if (updated && OnVehicleUpdated != null) OnVehicleUpdated(vehicle);
+            //if (vehicle.Vehicle.Id == SelectedVehicle.Vehicle.Id) OnPropertyChanged("SelectedVehicle");
+
+            Debug.WriteLine(string.Format("{2} {0}:{1}", vehicle.Vehicle.Name, entity.EventType, entity.Time));
         }
 
         public ComposedVehicle VehicleById(Guid id)

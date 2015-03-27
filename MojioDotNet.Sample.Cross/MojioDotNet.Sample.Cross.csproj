@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="Models\ApplicationConfiguration.cs" />
+    <Compile Include="Models\ComposedEvent.cs" />
     <Compile Include="Models\ComposedVehicle.cs" />
     <Compile Include="Models\oAuthToken.cs" />
     <Compile Include="MojioManager.cs" />

@@ -1,17 +1,16 @@
-﻿using System;
+﻿using Mojio.Events;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Mojio.Events;
 
 namespace MojioDotNet.Sample.Cross.Models
 {
     public class ComposedEvent : INotifyPropertyChanged
     {
-
         public string Display
         {
             get
@@ -22,152 +21,175 @@ namespace MojioDotNet.Sample.Cross.Models
                         var a = (_event as AccelerationEvent);
                         return "Acceleration: " + a.Acceleration.ToString();
                         break;
+
                     case EventType.Accelerometer:
                         var b = (_event as AccelerometerEvent);
                         return "Accelerometer: " + b.Accelerometer;
                         break;
+
                     case EventType.Accident:
                         return "Accident!";
                         break;
+
                     case EventType.Alert:
                         return "Alert";
                         break;
+
                     case EventType.ConnectionLost:
                         return "Connection Lost";
                         break;
+
                     case EventType.Deceleration:
                         var f = (_event as DecelerationEvent);
                         return "Deceleration: " + f.Deceleration;
                         break;
+
                     case EventType.DeviceDiagnostic:
                         var g = (_event as DeviceDiagnosticEvent);
-                        return "Diagnostics";
+                        return "Device Diagnostics";
                         break;
+
                     case EventType.Diagnostic:
                         var h = (_event as DiagnosticEvent);
-                        return "Deceleration: " + h.DTCs.ToString();
+                        return "Diagnostic: " + h.DTCs.ToString();
                         break;
+
                     case EventType.FenceEntered:
-                        var i = (_event as FenceEvent);
-                        return "Deceleration: " + i.Deceleration;
+                        return "Entered a Geo Fence";
                         break;
+
                     case EventType.FenceExited:
-                        var j = (_event as FenceEvent);
-                        return "Deceleration: " + j.Deceleration;
+                        return "Exited a Geo Fence "; ;
                         break;
+
                     case EventType.HardAcceleration:
-                        var k = (_event as AccelerationEvent);
-                        return "Deceleration: " + k.Deceleration;
+                        return "Hard Acceleration";
                         break;
+
                     case EventType.HardBrake:
                         return "Hard Brake!";
                         break;
+
                     case EventType.HardLeft:
                         return "Hard Left!";
                         break;
+
                     case EventType.HardRight:
                         return "Hard Right!";
                         break;
+
                     case EventType.HeadingChange:
                         var o = (_event as HeadingChangeEvent);
                         return "Heading Changed: " + o.Heading;
                         break;
+
                     case EventType.HeartBeat:
                         var p = (_event as HeartBeatEvent);
-                        return "Deceleration: " + p.Deceleration;
+                        return "Heart beat";
                         break;
+
                     case EventType.IdleEvent:
-                        var q = (_event as IdleEvent);
-                        return "Deceleration: " + q.Deceleration;
+                        return "Idling";
                         break;
+
                     case EventType.IgnitionOff:
                         return "Ignition Off";
                         break;
+
                     case EventType.IgnitionOn:
                         return "Ignition On";
                         break;
+
                     case EventType.Information:
                         return "Information";
                         break;
+
                     case EventType.Log:
                         return "Log";
                         break;
+
                     case EventType.LowBattery:
                         var v = (_event as BatteryEvent);
                         return "Battery Voltage: " + v.BatteryVoltage;
                         break;
+
                     case EventType.LowFuel:
                         var w = (_event as FuelEvent);
-                        return "Deceleration: " + w.Deceleration;
+                        return "Fuel: " + w.FuelLevel;
                         break;
+
                     case EventType.MILWarning:
                         return "MIL Warning";
                         break;
+
                     case EventType.Message:
-                        return "Message: ";
+                        return "Message";
                         break;
+
                     case EventType.Mileage:
-                        var z = (_event as MileageEvent);
-                        return "Deceleration: " + z.Deceleration;
+                        return "Mileage";
                         break;
+
                     case EventType.MojioIdle:
-                        var aa = (_event as IdleEvent);
-                        return "Deceleration: " + aa.Deceleration;
+                        return "Mojio Idle";
                         break;
+
                     case EventType.MojioOff:
-                        var bb = (_event as OffStatusEvent);
-                        return "Deceleration: " + bb.Deceleration;
+                        return "Mojio Off";
                         break;
+
                     case EventType.MojioOn:
-                        var cc = (_event as OffStatusEvent);
-                        return "Deceleration: " + cc.Deceleration;
+                        return "Mojion On";
                         break;
+
                     case EventType.MojioWake:
-                        var dd = (_event as AccelerationEvent);
-                        return "Deceleration: " + dd.Deceleration;
+                        return "Mojio Wake";
                         break;
+
                     case EventType.MovementStart:
-                        var ee = (_event as MovementEvent);
-                        return "Deceleration: " + ee.Deceleration;
+                        return "Movement Start";
                         break;
+
                     case EventType.MovementStop:
-                        var ff = (_event as MovementEvent);
-                        return "Deceleration: " + ff.Deceleration;
+                        return "Movement Stop";
                         break;
+
                     case EventType.OffStatus:
-                        var gg = (_event as OffStatusEvent);
-                        return "Deceleration: " + gg.Deceleration;
+                        return "Off";
                         break;
+
                     case EventType.Park:
-                        var hh = (_event as ParkEvent);
-                        return "Deceleration: " + hh.Deceleration;
+                        return "Parked";
                         break;
+
                     case EventType.PreSleepWarning:
-                        var ii = (_event as SleepEvent);
-                        return "Deceleration: " + ii.Deceleration;
+                        return "Pre Sleep Warning";
                         break;
+
                     case EventType.RPM:
                         var jj = (_event as RPMEvent);
-                        return "Deceleration: " + jj.Deceleration;
+                        return "RPM: " + jj.RPM;
                         break;
+
                     case EventType.Speed:
                         var kk = (_event as SpeedEvent);
-                        return "Deceleration: " + kk.Deceleration;
+                        return "Speed: " + kk.Speed;
                         break;
+
                     case EventType.TowStart:
-                        var ll = (_event as TowEvent);
-                        return "Deceleration: " + ll.Deceleration;
+                        return "Towing Started";
                         break;
+
                     case EventType.TowStop:
-                        var mm = (_event as TowEvent);
-                        return "Deceleration: " + mm.Deceleration;
+                        return "Towing Stopped: ";
                         break;
+
                     case EventType.Warning:
                         return "Warning";
                         break;
+
                     default:
                         return _event.EventType.ToString();
-
                 }
                 return _event.EventType.ToString();
             }
@@ -181,16 +203,15 @@ namespace MojioDotNet.Sample.Cross.Models
         public DateTime DateTime
         {
             get { return _event.Time.ToLocalTime(); }
-            
         }
-
 
         private Event _event;
 
         public Event Event
         {
             get { return _event; }
-            set { 
+            set
+            {
                 _event = value;
                 OnPropertyChanged();
             }

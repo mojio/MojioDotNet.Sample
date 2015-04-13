@@ -47,6 +47,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\LocationExtensions.cs" />
     <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="Models\ApplicationConfiguration.cs" />
     <Compile Include="Models\ComposedEvent.cs" />

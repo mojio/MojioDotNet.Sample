@@ -1,32 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
-using Windows.Foundation;
-using Windows.Storage.Streams;
-using Windows.UI.Core;
-using Windows.UI.Xaml;
-using Mojio;
+﻿using Mojio;
 using MojioDotNet.Sample.Cross;
 using MojioDotNet.Sample.Cross.Models;
-using MojioDotNet.Sample.Cross.ObservableEvents;
 using MojioDotNet.Sample.Windows.Commands;
+using System.Collections.Generic;
+using System.Reflection;
+using Windows.Devices.Geolocation;
+using Windows.UI.Xaml;
 
 namespace MojioDotNet.Sample.Windows.ViewModels
 {
     public class HomeViewModel : WindowsBaseViewModel
     {
         private string _headerText;
+
         public HomeViewModel(MojioManager manager)
             : base(manager)
         {
-            Register(typeof(HomeViewModel).GetTypeInfo());
+            Register(typeof (HomeViewModel).GetTypeInfo());
             HeaderVisibility = Visibility.Visible;
-            
+
+            var geo = new Geolocator();
+            geo.ReportInterval = 5000;
+            geo.PositionChanged += geo_PositionChanged;
+        }
+
+        private Geoposition _devicePosition;
+
+        public Geoposition DevicePosition
+        {
+            get { return _devicePosition; }
+            set
+            {
+                _devicePosition = value;
+                OnPropertyChanged();
+                if (this.ComposedVehicles != null)
+                {
+                    foreach (var v in this.ComposedVehicles)
+                    {
+                        v.DevicePosition = new Location()
+                        {
+                            Lat = value.Coordinate.Latitude,
+                            Lng = value.Coordinate.Longitude
+                        };
+                    }
+                }
+            }
+        }
+
+        private void geo_PositionChanged(Geolocator sender, PositionChangedEventArgs args)
+        {
+            base.SetProperty("DevicePosition", args.Position);
         }
 
         private SelectVehicleCommand _selectVehicleCommand;
@@ -41,6 +64,7 @@ namespace MojioDotNet.Sample.Windows.ViewModels
         }
 
         private ComposedVehicle _selectedVehicle;
+
         public ComposedVehicle SelectedVehicle
         {
             get { return _selectedVehicle; }
@@ -55,6 +79,7 @@ namespace MojioDotNet.Sample.Windows.ViewModels
                     _selectedVehicle.OnPropertyChanged("EventHistory");
                 }
                 OnPropertyChanged();
+                OnPropertyChanged("DetailTabsVisible");
             }
         }
 
@@ -73,6 +98,11 @@ namespace MojioDotNet.Sample.Windows.ViewModels
                     c.OnPropertyChanged("DiagnosticsCodes");
                     c.OnPropertyChanged("Vehicle");
                     c.OnPropertyChanged("EventHistory");
+                    c.DevicePosition = new Location()
+                    {
+                        Lat = this.DevicePosition.Coordinate.Latitude,
+                        Lng = this.DevicePosition.Coordinate.Longitude
+                    };
                 }
 
                 if (_selectedVehicle != null) SelectedVehicle = _selectedVehicle;
@@ -81,6 +111,7 @@ namespace MojioDotNet.Sample.Windows.ViewModels
         }
 
         private Visibility _headerVisibility;
+
         public Visibility HeaderVisibility
         {
             get { return _headerVisibility; }
@@ -89,6 +120,11 @@ namespace MojioDotNet.Sample.Windows.ViewModels
                 _headerVisibility = value;
                 OnPropertyChanged();
             }
+        }
+
+        public Visibility DetailTabsVisible
+        {
+            get { return (SelectedVehicle == null) ? Visibility.Collapsed : Visibility.Visible; }
         }
 
         public Visibility IsAuthenticVisibility
@@ -101,10 +137,10 @@ namespace MojioDotNet.Sample.Windows.ViewModels
             get { return (AuthenticationVisible) ? Visibility.Collapsed : Visibility.Visible; }
         }
 
-        public string DetailsHeaderText {
+        public string DetailsHeaderText
+        {
             get { return "vehicle details"; }
         }
-    
 
         public string HeaderText
         {
@@ -120,6 +156,7 @@ namespace MojioDotNet.Sample.Windows.ViewModels
                 }
             }
         }
+
         public bool AuthenticationVisible
         {
             get { return Manager.IsAuthenticated; }
@@ -128,7 +165,6 @@ namespace MojioDotNet.Sample.Windows.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged("IsNotAuthenticVisibility");
                 OnPropertyChanged("IsAuthenticVisibility");
-
             }
         }
 
@@ -144,8 +180,5 @@ namespace MojioDotNet.Sample.Windows.ViewModels
                 OnPropertyChanged("HeaderText");
             }
         }
-
-
-
     }
 }

@@ -1,0 +1,234 @@
+﻿<Page xmlns:Maps="using:Windows.UI.Xaml.Controls.Maps"
+    x:Class="MojioDotNet.Sample.Windows.VehicleDetailsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MojioDotNet.Sample.Windows"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <CommonNavigationTransitionInfo IsStaggeringEnabled="True" />
+                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+    <Grid>
+        <Pivot Visibility="{Binding IsAuthenticVisibility}" x:Uid="Pivot" Title="mojio" x:Name="pivot" CommonNavigationTransitionInfo.IsStaggerElement="True">
+
+            <PivotItem
+				    Margin="19,14.5,0,0"
+				    Header="details" x:Name="detailsPivotItem"
+				    CommonNavigationTransitionInfo.IsStaggerElement="True">
+
+                <ScrollViewer CommonNavigationTransitionInfo.IsStaggerElement="True">
+                    <Grid CommonNavigationTransitionInfo.IsStaggerElement="True">
+                        <ScrollViewer Margin="0,0,0,9.5">
+                            <StackPanel DataContext="{Binding SelectedVehicle}">
+                                <TextBlock
+						        Text="{Binding Vehicle.Name}"
+						        TextWrapping="Wrap"
+						        Pivot.SlideInAnimationGroup="1"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                </Grid>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0"
+						        Text="Current State:"
+						        TextWrapping="NoWrap"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="0" Grid.Column="1"
+						        Text="{Binding State}"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0"
+						        Text="Diagnostic Data:"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="1"
+						        Text="{Binding DiagnosticsCodes}"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="0"
+						        Text="License Plate:"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="1"
+						        Text="{Binding Vehicle.LicensePlate}"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="3" Grid.Column="0"
+						        Text="Last Speed:"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="3" Grid.Column="1"
+						        Text="{Binding Vehicle.LastSpeed}"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="0"
+						        Text="Last Seen:"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="1"
+						        Text="{Binding LastSeen}"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="0"
+						        Text="VIN:"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="1"
+						        Text="{Binding Vehicle.VIN}"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="0"
+						        Text="Fuel Level:"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="1"
+						        Text="{Binding Vehicle.FuelLevel}"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="0"
+						        Text="Battery Voltage:"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemTextBlockStyle}"
+						        Margin="0,0,19,0" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="1"
+						        Text="{Binding Vehicle.LastBatteryVoltage}"
+						        TextWrapping="WrapWholeWords"
+						        Pivot.SlideInAnimationGroup="2"
+						        CommonNavigationTransitionInfo.IsStaggerElement="True"
+						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Margin="0,0,19,0" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </ScrollViewer>
+            </PivotItem>
+
+            <!--<PivotItem
+				    Margin="19,14.5,0,0"
+				    Header="history" x:Name="historyPivotItem"
+				    CommonNavigationTransitionInfo.IsStaggerElement="True">
+                <ScrollViewer CommonNavigationTransitionInfo.IsStaggerElement="True">
+                    <Grid CommonNavigationTransitionInfo.IsStaggerElement="True">
+                        <TextBlock
+								    Text="{Binding HeaderText}" Visibility="{Binding HeaderVisibility}"
+								    TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"
+								    Pivot.SlideInAnimationGroup="1"
+								    CommonNavigationTransitionInfo.IsStaggerElement="True"
+								    Style="{ThemeResource SubheaderTextBlockStyle}"
+								    Margin="0,0,19,50" />
+
+                        <ProgressRing Visibility="{Binding HeaderVisibility}" IsEnabled="True" IsActive="True" />
+                        <ListView
+					    ItemsSource="{Binding SelectedVehicle.EventHistory, Mode=TwoWay}"
+					    Grid.Row="2"
+					    ContinuumNavigationTransitionInfo.ExitElementContainer="True">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,9.5">
+                                        <TextBlock
+									    Text="{Binding Display}"
+									    TextWrapping="Wrap"
+									    Pivot.SlideInAnimationGroup="1"
+									    CommonNavigationTransitionInfo.IsStaggerElement="True"
+									    Style="{ThemeResource ListViewItemTextBlockStyle}"
+									    Margin="0,0,19,0" />
+
+                                        <TextBlock
+									    Text="{Binding DateTime}"
+									    TextWrapping="WrapWholeWords"
+									    Pivot.SlideInAnimationGroup="2"
+									    CommonNavigationTransitionInfo.IsStaggerElement="True"
+									    Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+									    Margin="0,0,19,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                </ScrollViewer>
+            </PivotItem>-->
+
+            <PivotItem
+				    Margin="19,14.5,0,0"
+				    Header="location" x:Name="locationPivotItem"
+				    CommonNavigationTransitionInfo.IsStaggerElement="True">
+                <ScrollViewer CommonNavigationTransitionInfo.IsStaggerElement="True">
+                    <Maps:MapControl x:Name="VehicleMap" MapServiceToken="{Binding Manager.Configuration.BingMapCredentials}" />
+                </ScrollViewer>
+            </PivotItem>
+        </Pivot>
+    </Grid>
+</Page>

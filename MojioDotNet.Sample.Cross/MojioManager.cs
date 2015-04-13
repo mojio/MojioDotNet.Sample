@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Mojio;
+using Mojio.Client;
+using Mojio.Events;
+using MojioDotNet.Sample.Cross.Extensions;
+using MojioDotNet.Sample.Cross.Models;
+using MojioDotNet.Sample.Cross.ObservableEvents;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using Mojio;
-using Mojio.Client;
-using Mojio.Events;
-using MojioDotNet.Sample.Cross.Extensions;
-using MojioDotNet.Sample.Cross.Models;
-using MojioDotNet.Sample.Cross.ObservableEvents;
 
 namespace MojioDotNet.Sample.Cross
 {
@@ -23,28 +23,26 @@ namespace MojioDotNet.Sample.Cross
 
         private readonly ApplicationConfiguration _configuration;
 
-
         public MojioManager(ApplicationConfiguration configuration)
         {
             _configuration = configuration;
             IsAuthenticated = false;
 
-            _configuration.AuthorizeUri = _client.getAuthorizeUri(_configuration.ApplicationId, _configuration.RedirectUri.ToString(), _configuration.Live);
-
-
+            _configuration.AuthorizeUri = _client.getAuthorizeUri(_configuration.ApplicationId,
+                _configuration.RedirectUri.ToString(), _configuration.Live);
         }
-
 
         private MojioClient _client = new MojioClient("https://api.moj.io/v1");
 
         private bool _isAuthenticated;
+
         public bool IsAuthenticated
         {
             get { return _isAuthenticated; }
             set
             {
                 _isAuthenticated = value;
-                Push(new AuthenticationEvent() {IsAuthenticated = value});
+                Push(new AuthenticationEvent() { IsAuthenticated = value });
 
                 if (_isAuthenticated)
                 {
@@ -54,6 +52,7 @@ namespace MojioDotNet.Sample.Cross
         }
 
         private bool tokenSet = false;
+
         public User User { get; set; }
 
         private async Task Connect()
@@ -64,18 +63,14 @@ namespace MojioDotNet.Sample.Cross
                 try
                 {
                     await _client.TokenAsync(_configuration.ApplicationId, OAuthToken.AccessToken);
-                    
                 }
                 catch (Exception)
                 {
-
                     throw;
                 }
-
             }
             try
             {
-
                 User = await _client.GetCurrentUserAsync();
                 Push(User);
 
@@ -95,34 +90,27 @@ namespace MojioDotNet.Sample.Cross
                     }
                 }
                 ComposedVehicles = composed;
-                Push(ComposedVehicles);
-
-                SetupObservers();
-
-
 
                 foreach (var v in ComposedVehicles)
                 {
                     try
                     {
                         v.VehicleDetails = (await _client.GetVehicleDetailsAsync(v.Vehicle.Id)).Data;
+                        Debug.WriteLine(string.Format("got vehicle details:{0}", v.Vehicle.Id));
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
                     }
                 }
+                SetupObservers();
                 Push(ComposedVehicles);
-
-
             }
             catch (Exception e)
             {
-
                 throw;
             }
         }
 
-       
         private async Task SetupObservers()
         {
             Task.Factory.StartNew(() =>
@@ -136,7 +124,9 @@ namespace MojioDotNet.Sample.Cross
                         foreach (var v in this.ComposedVehicles)
                         {
                             //var userEvents = _client.UserEventsAsync(this.User.Id, 1).Result;
-                            var vehicleEvents = _client.GetByAsync<Event, Vehicle>(v.Vehicle.Id, 0, "events", @event => @event.Time, true).Result;
+                            var vehicleEvents =
+                                _client.GetByAsync<Event, Vehicle>(v.Vehicle.Id, 0, "events", @event => @event.Time,
+                                    true).Result;
                             if (vehicleEvents.Data != null && vehicleEvents.Data.Data != null)
                             {
                                 //Debug.WriteLine("received:{0} events", vehicleEvents.Data.Data.Count());
@@ -149,17 +139,13 @@ namespace MojioDotNet.Sample.Cross
                             }
                             else
                             {
-
                             }
                         }
                         Push(ComposedVehicles);
-
                     }
                     catch (Exception)
                     {
-                        
                     }
-
                 }
             });
         }
@@ -175,9 +161,17 @@ namespace MojioDotNet.Sample.Cross
 
                     if (existing == null)
                     {
-                        var composedEvent = new ComposedEvent() { Event = e };
-                        noDups.Add(e);
-                        vehicle.EventHistory.Add(composedEvent);
+                        if (e.EventType != EventType.TripStatus && e.EventType != EventType.OffStatus &&
+                            e.EventType != EventType.Diagnostic && e.EventType != EventType.DeviceDiagnostic &&
+                            e.EventType != EventType.HeartBeat && e.EventType != EventType.MojioOff &&
+                            e.EventType != EventType.MojioOn && e.EventType != EventType.MojioWake &&
+                            e.EventType != EventType.MojioIdle
+                            )
+                        {
+                            var composedEvent = new ComposedEvent() { Event = e };
+                            noDups.Add(e);
+                            vehicle.EventHistory.Add(composedEvent);
+                        }
                     }
                 }
             }
@@ -186,24 +180,19 @@ namespace MojioDotNet.Sample.Cross
 
         private void HandleEvent(ComposedVehicle vehicle, Event entity)
         {
-            
-            var evt = entity as Event;
-            bool updated = false;
+            var evt = entity;
 
             if (evt.Location != null)
             {
                 vehicle.Vehicle.LastLocation = evt.Location;
-                updated = true;
             }
             if (evt.Accelerometer != null)
             {
                 vehicle.Vehicle.LastAccelerometer = evt.Accelerometer;
-                updated = true;
             }
             if (evt.BatteryVoltage != null)
             {
                 vehicle.Vehicle.LastBatteryVoltage = evt.BatteryVoltage;
-                updated = true;
             }
             //if (updated && OnVehicleUpdated != null) OnVehicleUpdated(vehicle);
             //if (vehicle.Vehicle.Id == SelectedVehicle.Vehicle.Id) OnPropertyChanged("SelectedVehicle");
@@ -215,9 +204,8 @@ namespace MojioDotNet.Sample.Cross
         {
             return (from v in ComposedVehicles where v.Vehicle.Id == id select v).FirstOrDefault();
         }
-        
 
-        public void HandleTokenResponse(string tokenBits)
+        public oAuthToken HandleTokenResponse(string tokenBits)
         {
             if (!tokenBits.Contains("?"))
             {
@@ -240,6 +228,7 @@ namespace MojioDotNet.Sample.Cross
 
             IsAuthenticated = true;
             OAuthToken = token;
+            return token;
         }
 
         private oAuthToken _oAuthToken;
@@ -247,20 +236,17 @@ namespace MojioDotNet.Sample.Cross
         public oAuthToken OAuthToken
         {
             get { return _oAuthToken; }
-            set
-            {
-                _oAuthToken = value;                
-            }
+            set { _oAuthToken = value; }
         }
 
         private void Push<T>(T evt)
         {
             List<IObserver<T>> lst = null;
-            if (typeof (T).GetTypeInfo() == typeof (AuthenticationEvent).GetTypeInfo())
+            if (typeof(T).GetTypeInfo() == typeof(AuthenticationEvent).GetTypeInfo())
             {
                 lst = _authObservers as List<IObserver<T>>;
             }
-            else if (typeof (T).GetTypeInfo() == typeof (User).GetTypeInfo())
+            else if (typeof(T).GetTypeInfo() == typeof(User).GetTypeInfo())
             {
                 lst = _userObservers as List<IObserver<T>>;
             }
@@ -278,6 +264,7 @@ namespace MojioDotNet.Sample.Cross
         }
 
         private List<IObserver<AuthenticationEvent>> _authObservers = new List<IObserver<AuthenticationEvent>>();
+
         public IDisposable Subscribe(IObserver<AuthenticationEvent> observer)
         {
             if (!_authObservers.Contains(observer))
@@ -287,9 +274,8 @@ namespace MojioDotNet.Sample.Cross
             return new Unsubscriber<AuthenticationEvent>(_authObservers, observer);
         }
 
-
-
         private List<IObserver<User>> _userObservers = new List<IObserver<User>>();
+
         public IDisposable Subscribe(IObserver<User> observer)
         {
             if (!_userObservers.Contains(observer))
@@ -316,6 +302,5 @@ namespace MojioDotNet.Sample.Cross
             }
             return new Unsubscriber<List<ComposedVehicle>>(_vehicleObservers, observer);
         }
-
     }
 }

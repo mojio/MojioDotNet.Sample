@@ -1,22 +1,115 @@
-﻿using System.Collections.Generic;
+﻿using Mojio;
+using MojioDotNet.Sample.Cross.Extensions;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Mojio;
-using Mojio.Events;
 
 namespace MojioDotNet.Sample.Cross.Models
 {
     public class ComposedVehicle : INotifyPropertyChanged
     {
-        public VehicleDetails VehicleDetails { get; set; }
-        public Vehicle Vehicle { get; set; }
+        public string HealthColor
+        {
+            get
+            {
+                if (Vehicle.FaultsDetected) return "Red";
+
+                if (Vehicle.LastBatteryVoltage.HasValue && Vehicle.LastBatteryVoltage.Value < 12) return "Yellow";
+
+                return "Green";
+            }
+        }
+
+        public string DistanceAway
+        {
+            get
+            {
+                if (DevicePosition != null && Vehicle.LastLocation != null)
+                {
+                    var distance = DevicePosition.DistanceAway(Vehicle.LastLocation);
+                    var r = string.Format("{0:#0.#} km away", distance);
+                    return r;
+                }
+                return "";
+            }
+        }
+
+        public Location DevicePosition
+        {
+            get { return _devicePosition; }
+            set
+            {
+                _devicePosition = value;
+                OnPropertyChanged();
+                OnPropertyChanged("DistanceAway");
+            }
+        }
+
+        public VehicleDetails VehicleDetails
+        {
+            get { return _vehicleDetails; }
+            set
+            {
+                _vehicleDetails = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime? LastSeen
+        {
+            get
+            {
+                var v = _vehicle.LastContactTime;
+                if (v.HasValue)
+                {
+                    return _vehicle.LastContactTime.Value.ToLocalTime();
+                }
+                return null;
+            }
+        }
+
+        public Vehicle Vehicle
+        {
+            get { return _vehicle; }
+            set
+            {
+                _vehicle = value;
+                OnPropertyChanged();
+            }
+        }
 
         public ComposedVehicle()
         {
             EventHistory = new List<ComposedEvent>();
         }
 
-        public List<ComposedEvent> EventHistory { get; set; } 
+        public List<ComposedEvent> EventHistory { get; set; }
+
+        public string IgnitionState
+        {
+            get
+            {
+                if (Vehicle.IgnitionOn.HasValue && Vehicle.IgnitionOn.Value)
+                {
+                    var lastSeen = LastSeen;
+                    if (lastSeen.HasValue)
+                    {
+                        var diff = new TimeSpan(System.DateTime.Now.Ticks - LastSeen.Value.Ticks);
+                        if (diff.TotalMinutes > 10) return "Parked";
+                        return "Running";
+                    }
+                    else
+                    {
+                        return "Running";
+                    }
+                }
+                else
+                {
+                    return "Parked";
+                }
+            }
+        }
 
         public string State
         {
@@ -26,14 +119,12 @@ namespace MojioDotNet.Sample.Cross.Models
                 {
                     if (VehicleDetails != null && !string.IsNullOrEmpty(VehicleDetails.Make))
                     {
-                        return string.Format("{0} {1}, {2}", VehicleDetails.Make, VehicleDetails.Model,
-                            ((Vehicle.IgnitionOn.HasValue && Vehicle.IgnitionOn.Value) ? "Running" : "Parked"));
-
+                        return string.Format("{0} {1}, {2} - {3}", VehicleDetails.Year, VehicleDetails.Make,
+                            VehicleDetails.Model, IgnitionState);
                     }
                     else
                     {
-                        return string.Format("{0}",
-                            ((Vehicle.IgnitionOn.HasValue && Vehicle.IgnitionOn.Value) ? "Running" : "Parked"));
+                        return IgnitionState;
                     }
                 }
                 else
@@ -42,7 +133,6 @@ namespace MojioDotNet.Sample.Cross.Models
                 }
             }
         }
-
 
         public string DiagnosticsCodes
         {
@@ -70,15 +160,19 @@ namespace MojioDotNet.Sample.Cross.Models
                                 case 'B':
                                     result = result + "Body Code (Includes A/C and Air Bag)\n";
                                     break;
+
                                 case 'C':
                                     result = result + "Chassis Code (Includes ABS)\n";
                                     break;
+
                                 case 'P':
                                     result = result + "Powertrain Code (Engine and Transmission)\n";
                                     break;
+
                                 case 'U':
                                     result = result + "Network Code (wiring bus)\n";
                                     break;
+
                                 default:
                                     break;
                             }
@@ -88,9 +182,11 @@ namespace MojioDotNet.Sample.Cross.Models
                                 case '0':
                                     result = result + "Generic OBD Code\n";
                                     break;
+
                                 case '1':
                                     result = result + "Vehicle Manufacturer Special Code\n";
                                     break;
+
                                 default:
                                     break;
                             }
@@ -101,27 +197,35 @@ namespace MojioDotNet.Sample.Cross.Models
                                 case '1':
                                     result = result + "Fuel and Air Metering\n";
                                     break;
+
                                 case '2':
                                     result = result + "Fuel and Air Metering (injector circuit)\n";
                                     break;
+
                                 case '3':
                                     result = result + "Ignition System or Misfire\n";
                                     break;
+
                                 case '4':
                                     result = result + "Auxilliary Emission Controls\n";
                                     break;
+
                                 case '5':
                                     result = result + "Vehicle Speed Control & Idle Control System\n";
                                     break;
+
                                 case '6':
                                     result = result + "Computer Output Circuit\n";
                                     break;
+
                                 case '7':
                                     result = result + "Transmission\n";
                                     break;
+
                                 case '8':
                                     result = result + "Transmission\n";
                                     break;
+
                                 default:
                                     break;
                             }
@@ -134,10 +238,11 @@ namespace MojioDotNet.Sample.Cross.Models
                 return "No diagnostic issues to report";
             }
         }
+
         #region DTCCodes
+
         public Dictionary<string, string> Codes = new Dictionary<string, string>()
         {
-
             {"P0001", "Fuel Volume Regulator Control Circuit/Open"},
             {"P0002", "Fuel Volume Regulator Control Circuit Range/Performance"},
             {"P0003", "Fuel Volume Regulator Control Circuit Low"},
@@ -2207,8 +2312,12 @@ namespace MojioDotNet.Sample.Cross.Models
         };
 
         private string _description;
+        private VehicleDetails _vehicleDetails;
+        private Vehicle _vehicle;
+        private string _healthColor;
+        private Location _devicePosition;
 
-        #endregion
+        #endregion DTCCodes
 
         public event PropertyChangedEventHandler PropertyChanged;
 

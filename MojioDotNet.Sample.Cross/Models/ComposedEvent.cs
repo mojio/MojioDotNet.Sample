@@ -1,11 +1,7 @@
 ﻿using Mojio.Events;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MojioDotNet.Sample.Cross.Models
 {
@@ -59,7 +55,8 @@ namespace MojioDotNet.Sample.Cross.Models
                         break;
 
                     case EventType.FenceExited:
-                        return "Exited a Geo Fence "; ;
+                        return "Exited a Geo Fence ";
+                        ;
                         break;
 
                     case EventType.HardAcceleration:
@@ -80,7 +77,7 @@ namespace MojioDotNet.Sample.Cross.Models
 
                     case EventType.HeadingChange:
                         var o = (_event as HeadingChangeEvent);
-                        return "Heading Changed: " + o.Heading;
+                        return "Heading Changed: " + GetHeading(o.Heading);
                         break;
 
                     case EventType.HeartBeat:
@@ -192,6 +189,25 @@ namespace MojioDotNet.Sample.Cross.Models
                         return _event.EventType.ToString();
                 }
                 return _event.EventType.ToString();
+            }
+        }
+
+        public string GetHeading(double? heading)
+        {
+            if (heading.HasValue)
+            {
+                var h = Convert.ToInt32(heading);
+                var directions = new string[]
+                {
+                    "North", "North East", "East", "South East", "South", "South West", "West", "North West", "North"
+                };
+
+                var index = (h + 23) / 45;
+                return directions[index];
+            }
+            else
+            {
+                return "";
             }
         }
 

@@ -9,6 +9,16 @@ namespace MojioDotNet.Sample.Cross.Models
 {
     public class ComposedVehicle : INotifyPropertyChanged
     {
+        public IEnumerable<VehicleService> VehicleServiceSchedules
+        {
+            get { return _vehicleServiceSchedules; }
+            set
+            {
+                _vehicleServiceSchedules = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string HealthColor
         {
             get
@@ -149,7 +159,7 @@ namespace MojioDotNet.Sample.Cross.Models
                         result = result + c + ":\n";
                         if (Codes.ContainsKey(c))
                         {
-                            result = Codes[c] + "\n";
+                            result = result + Codes[c] + "\n";
                         }
                         else
                         {
@@ -207,7 +217,7 @@ namespace MojioDotNet.Sample.Cross.Models
                                     break;
 
                                 case '4':
-                                    result = result + "Auxilliary Emission Controls\n";
+                                    result = result + "Auxiliary Emission Controls\n";
                                     break;
 
                                 case '5':
@@ -233,7 +243,7 @@ namespace MojioDotNet.Sample.Cross.Models
                         result = result + "\n\n";
                     }
 
-                    return result;
+                    return result.Trim();
                 }
                 return "No diagnostic issues to report";
             }
@@ -2316,6 +2326,7 @@ namespace MojioDotNet.Sample.Cross.Models
         private Vehicle _vehicle;
         private string _healthColor;
         private Location _devicePosition;
+        private IEnumerable<VehicleService> _vehicleServiceSchedules;
 
         #endregion DTCCodes
 

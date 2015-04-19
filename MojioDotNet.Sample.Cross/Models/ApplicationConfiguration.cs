@@ -4,6 +4,8 @@ namespace MojioDotNet.Sample.Cross.Models
 {
     public class ApplicationConfiguration
     {
+        private string _host;
+
         public ApplicationConfiguration()
         {
             ApplicationId = "8c67d1a8-835e-4a7d-ba8d-566798f125fb";
@@ -12,6 +14,18 @@ namespace MojioDotNet.Sample.Cross.Models
             RedirectUri = uri;
             Live = true;
             BingMapCredentials = "AiVIP0IcaljvepBb6VRlOFNBLtC8HEbqavrDWAxc5nI2Am2XprFY2rv5PfZb5buw";
+        }
+
+        private string _prod = "https://api.moj.io/v1";
+        private string _stage = "https://staging.api.moj.io/v1";
+
+        public string Host
+        {
+#if STAGE
+            get { return _stage; }
+#else
+            get { return _prod; }
+#endif
         }
 
         public string SecretKey

@@ -2,13 +2,10 @@
 using MojioDotNet.Sample.Cross.Models;
 using MojioDotNet.Sample.Windows.ViewModels;
 using System;
-using System.Collections.Generic;
-using Windows.Devices.Geolocation;
 using Windows.Security.Authentication.Web;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Maps;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
@@ -21,18 +18,42 @@ namespace MojioDotNet.Sample.Windows
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        private readonly MojioManager _manager;
+        private MojioManager _manager;
 
         public MainPage()
         {
             this.InitializeComponent();
             this.NavigationCacheMode = NavigationCacheMode.Required;
+        }
 
-            _manager = new MojioManager(new ApplicationConfiguration());
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (_manager != null && _manager.IsAuthenticated)
+            {
+                base.OnNavigatedTo(e);
+                return;
+            }
+
+            var config = new ApplicationConfiguration();
+            var settings = ApplicationData.Current.RoamingSettings;
+
+            if (settings.Values.ContainsKey("sandbox"))
+            {
+                var v = settings.Values["sandbox"];
+                if (v != null)
+                {
+                    bool value = false;
+                    if (bool.TryParse(v.ToString(), out value))
+                    {
+                        config.Live = !value;
+                    }
+                }
+            }
+            _manager = new MojioManager(config);
+
             var model = new HomeViewModel(_manager);
             this.DataContext = model;
 
-            var settings = ApplicationData.Current.RoamingSettings;
             if (settings.Values.ContainsKey(App.MojioStorageKey))
             {
                 var value = settings.Values[App.MojioStorageKey];
@@ -42,6 +63,7 @@ namespace MojioDotNet.Sample.Windows
                     if (!string.IsNullOrEmpty(str))
                     {
                         var t = _manager.HandleTokenResponse(str);
+                        App.RegisterBackgroundTask(str);
                     }
                 }
             }
@@ -51,6 +73,7 @@ namespace MojioDotNet.Sample.Windows
                 timer.Tick += timer_Tick;
                 timer.Start();
             }
+            base.OnNavigatedTo(e);
         }
 
         private DispatcherTimer timer = new DispatcherTimer();
@@ -70,6 +93,11 @@ namespace MojioDotNet.Sample.Windows
             {
                 Frame.Navigate(typeof(VehicleDetailsPage), new object[] { _manager, item });
             }
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(SettingsPage), new object[] { _manager });
         }
     }
 }

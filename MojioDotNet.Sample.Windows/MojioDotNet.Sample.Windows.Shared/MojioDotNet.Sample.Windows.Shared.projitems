@@ -17,6 +17,7 @@
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MojioCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\SelectVehicleCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tasks\VehicleObserverBackgroundTask.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\HomeViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\WindowsBaseViewModel.cs" />
   </ItemGroup>

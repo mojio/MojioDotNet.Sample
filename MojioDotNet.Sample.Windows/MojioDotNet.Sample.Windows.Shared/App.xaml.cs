@@ -1,7 +1,9 @@
-﻿using MojioDotNet.Sample.Windows.ViewModels;
+﻿using MojioDotNet.Sample.Windows.Tasks;
+using MojioDotNet.Sample.Windows.ViewModels;
 using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Background;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -135,6 +137,8 @@ namespace MojioDotNet.Sample.Windows
 
         protected override void OnActivated(IActivatedEventArgs args)
         {
+            var settings = ApplicationData.Current.RoamingSettings;
+
             var _WABContinuationArgs = args as WebAuthenticationBrokerContinuationEventArgs;
             if (_WABContinuationArgs != null)
             {
@@ -145,12 +149,13 @@ namespace MojioDotNet.Sample.Windows
                     var mainPage = rootFrame.Content as MojioDotNet.Sample.Windows.MainPage;
                     var token = (mainPage.DataContext as HomeViewModel).Manager.HandleTokenResponse(tokenBits);
 
-                    var settings = ApplicationData.Current.RoamingSettings;
                     if (token != null)
                     {
                         if (settings.Values.ContainsKey(App.MojioStorageKey))
                             settings.Values.Remove(App.MojioStorageKey);
                         settings.Values.Add(App.MojioStorageKey, tokenBits);
+
+                        RegisterBackgroundTask(tokenBits);
                     }
                 }
             }
@@ -159,5 +164,19 @@ namespace MojioDotNet.Sample.Windows
         }
 
 #endif
+
+        public static void RegisterBackgroundTask(string tokenBits)
+        {
+            BackgroundTaskBuilder taskBuilder = new BackgroundTaskBuilder();
+            taskBuilder.Name = "VehicleObserverBackgroundTask";
+            var trigger = new TimeTrigger(15, false);
+            taskBuilder.SetTrigger(trigger);
+
+            var pushTrigger = new PushNotificationTrigger();
+            taskBuilder.SetTrigger(pushTrigger);
+
+            taskBuilder.TaskEntryPoint = typeof(VehicleObserverBackgroundTask).FullName;
+            taskBuilder.Register();
+        }
     }
 }

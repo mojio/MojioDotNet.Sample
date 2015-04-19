@@ -44,20 +44,12 @@
                                 </Grid>
 
                                 <TextBlock Grid.Row="0" Grid.Column="0"
-						        Text="Current State:"
-						        TextWrapping="NoWrap"
-						        Pivot.SlideInAnimationGroup="2"
-						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemTextBlockStyle}"
-						        Margin="0,0,19,0" />
-
-                                <TextBlock Grid.Row="0" Grid.Column="1"
 						        Text="{Binding State}"
 						        TextWrapping="WrapWholeWords"
 						        Pivot.SlideInAnimationGroup="2"
 						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
-						        Margin="0,0,19,0" />
+						        Style="{ThemeResource ControlHeaderTextBlockStyle}"
+						        Margin="0,0,19,0" Grid.ColumnSpan="2" />
 
                                 <TextBlock Grid.Row="1" Grid.Column="0"
 						        Text="Diagnostic Data:"
@@ -72,7 +64,7 @@
 						        TextWrapping="WrapWholeWords"
 						        Pivot.SlideInAnimationGroup="2"
 						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Style="{ThemeResource ControlHeaderTextBlockStyle}"
 						        Margin="0,0,19,0" />
 
                                 <TextBlock Grid.Row="2" Grid.Column="0"
@@ -88,7 +80,7 @@
 						        TextWrapping="WrapWholeWords"
 						        Pivot.SlideInAnimationGroup="2"
 						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Style="{ThemeResource ControlHeaderTextBlockStyle}"
 						        Margin="0,0,19,0" />
 
                                 <TextBlock Grid.Row="3" Grid.Column="0"
@@ -104,7 +96,7 @@
 						        TextWrapping="WrapWholeWords"
 						        Pivot.SlideInAnimationGroup="2"
 						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Style="{ThemeResource ControlHeaderTextBlockStyle}"
 						        Margin="0,0,19,0" />
 
                                 <TextBlock Grid.Row="4" Grid.Column="0"
@@ -120,7 +112,7 @@
 						        TextWrapping="WrapWholeWords"
 						        Pivot.SlideInAnimationGroup="2"
 						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Style="{ThemeResource ControlHeaderTextBlockStyle}"
 						        Margin="0,0,19,0" />
 
                                 <TextBlock Grid.Row="4" Grid.Column="0"
@@ -136,7 +128,7 @@
 						        TextWrapping="WrapWholeWords"
 						        Pivot.SlideInAnimationGroup="2"
 						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Style="{ThemeResource ControlHeaderTextBlockStyle}"
 						        Margin="0,0,19,0" />
 
                                 <TextBlock Grid.Row="4" Grid.Column="0"
@@ -152,7 +144,7 @@
 						        TextWrapping="WrapWholeWords"
 						        Pivot.SlideInAnimationGroup="2"
 						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Style="{ThemeResource ControlHeaderTextBlockStyle}"
 						        Margin="0,0,19,0" />
 
                                 <TextBlock Grid.Row="4" Grid.Column="0"
@@ -168,7 +160,7 @@
 						        TextWrapping="WrapWholeWords"
 						        Pivot.SlideInAnimationGroup="2"
 						        CommonNavigationTransitionInfo.IsStaggerElement="True"
-						        Style="{ThemeResource ListViewItemContentTextBlockStyle}"
+						        Style="{ThemeResource ControlHeaderTextBlockStyle}"
 						        Margin="0,0,19,0" />
                             </StackPanel>
                         </ScrollViewer>
@@ -176,21 +168,12 @@
                 </ScrollViewer>
             </PivotItem>
 
-            <!--<PivotItem
+            <PivotItem
 				    Margin="19,14.5,0,0"
-				    Header="history" x:Name="historyPivotItem"
+				    Header="service schedule" x:Name="historyPivotItem"
 				    CommonNavigationTransitionInfo.IsStaggerElement="True">
                 <ScrollViewer CommonNavigationTransitionInfo.IsStaggerElement="True">
                     <Grid CommonNavigationTransitionInfo.IsStaggerElement="True">
-                        <TextBlock
-								    Text="{Binding HeaderText}" Visibility="{Binding HeaderVisibility}"
-								    TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"
-								    Pivot.SlideInAnimationGroup="1"
-								    CommonNavigationTransitionInfo.IsStaggerElement="True"
-								    Style="{ThemeResource SubheaderTextBlockStyle}"
-								    Margin="0,0,19,50" />
-
-                        <ProgressRing Visibility="{Binding HeaderVisibility}" IsEnabled="True" IsActive="True" />
                         <ListView
 					    ItemsSource="{Binding SelectedVehicle.EventHistory, Mode=TwoWay}"
 					    Grid.Row="2"
@@ -207,7 +190,7 @@
 									    Margin="0,0,19,0" />
 
                                         <TextBlock
-									    Text="{Binding DateTime}"
+									    Text="{Binding When}"
 									    TextWrapping="WrapWholeWords"
 									    Pivot.SlideInAnimationGroup="2"
 									    CommonNavigationTransitionInfo.IsStaggerElement="True"
@@ -219,7 +202,7 @@
                         </ListView>
                     </Grid>
                 </ScrollViewer>
-            </PivotItem>-->
+            </PivotItem>
 
             <PivotItem
 				    Margin="19,14.5,0,0"

@@ -28,11 +28,13 @@ namespace MojioDotNet.Sample.Cross
             _configuration = configuration;
             IsAuthenticated = false;
 
+            _client = new MojioClient(_configuration.Host);
+
             _configuration.AuthorizeUri = _client.getAuthorizeUri(_configuration.ApplicationId,
                 _configuration.RedirectUri.ToString(), _configuration.Live);
         }
 
-        private MojioClient _client = new MojioClient("https://api.moj.io/v1");
+        private MojioClient _client = null;
 
         private bool _isAuthenticated;
 
@@ -42,7 +44,7 @@ namespace MojioDotNet.Sample.Cross
             set
             {
                 _isAuthenticated = value;
-                Push(new AuthenticationEvent() { IsAuthenticated = value });
+                Push(new AuthenticationEvent() {IsAuthenticated = value});
 
                 if (_isAuthenticated)
                 {
@@ -90,25 +92,41 @@ namespace MojioDotNet.Sample.Cross
                     }
                 }
                 ComposedVehicles = composed;
-
-                foreach (var v in ComposedVehicles)
-                {
-                    try
-                    {
-                        v.VehicleDetails = (await _client.GetVehicleDetailsAsync(v.Vehicle.Id)).Data;
-                        Debug.WriteLine(string.Format("got vehicle details:{0}", v.Vehicle.Id));
-                    }
-                    catch (Exception e)
-                    {
-                    }
-                }
-                SetupObservers();
                 Push(ComposedVehicles);
+
+                UpdateExtended();
             }
             catch (Exception e)
             {
                 throw;
             }
+        }
+
+        private async Task UpdateExtended()
+        {
+            //foreach (var v in ComposedVehicles)
+            //{
+            //    try
+            //    {
+            //        var details = (await _client.GetVehicleDetailsAsync(v.Vehicle.Id)).Data;
+            //        v.VehicleDetails = details;
+            //        Debug.WriteLine(string.Format("got vehicle details:{0}", v.Vehicle.Id));
+            //    }
+            //    catch (Exception e)
+            //    {
+            //    }
+            //    try
+            //    {
+            //        var vehicleServiceSchedules = (await _client.GetVehicleServiceScheduleAsync(v.Vehicle.Id)).Data.Data;
+            //        //v.VehicleServiceSchedules = vehicleServiceSchedules;
+            //        Debug.WriteLine(string.Format("got vehicle service schedules:{0}", v.Vehicle.Id));
+            //    }
+            //    catch (Exception e)
+            //    {
+            //    }
+            //}
+            //SetupObservers();
+            Push(ComposedVehicles);
         }
 
         private async Task SetupObservers()
@@ -168,7 +186,7 @@ namespace MojioDotNet.Sample.Cross
                             e.EventType != EventType.MojioIdle
                             )
                         {
-                            var composedEvent = new ComposedEvent() { Event = e };
+                            var composedEvent = new ComposedEvent() {Event = e};
                             noDups.Add(e);
                             vehicle.EventHistory.Add(composedEvent);
                         }
@@ -242,15 +260,15 @@ namespace MojioDotNet.Sample.Cross
         private void Push<T>(T evt)
         {
             List<IObserver<T>> lst = null;
-            if (typeof(T).GetTypeInfo() == typeof(AuthenticationEvent).GetTypeInfo())
+            if (typeof (T).GetTypeInfo() == typeof (AuthenticationEvent).GetTypeInfo())
             {
                 lst = _authObservers as List<IObserver<T>>;
             }
-            else if (typeof(T).GetTypeInfo() == typeof(User).GetTypeInfo())
+            else if (typeof (T).GetTypeInfo() == typeof (User).GetTypeInfo())
             {
                 lst = _userObservers as List<IObserver<T>>;
             }
-            else if (typeof(T).GetTypeInfo() == typeof(List<ComposedVehicle>).GetTypeInfo())
+            else if (typeof (T).GetTypeInfo() == typeof (List<ComposedVehicle>).GetTypeInfo())
             {
                 lst = _vehicleObservers as List<IObserver<T>>;
             }

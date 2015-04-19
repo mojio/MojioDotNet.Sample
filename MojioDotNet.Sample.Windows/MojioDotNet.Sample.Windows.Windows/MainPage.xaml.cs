@@ -1,5 +1,4 @@
-﻿using Bing.Maps;
-using MojioDotNet.Sample.Cross;
+﻿using MojioDotNet.Sample.Cross;
 using MojioDotNet.Sample.Cross.Models;
 using MojioDotNet.Sample.Windows.Extensions;
 using MojioDotNet.Sample.Windows.ViewModels;
@@ -112,6 +111,7 @@ namespace MojioDotNet.Sample.Windows
                             var mainPage = rootFrame.Content as MojioDotNet.Sample.Windows.MainPage;
                             var t = (mainPage.DataContext as HomeViewModel).Manager.HandleTokenResponse(str);
                             if (t != null) needsoAuth = false;
+                            App.RegisterBackgroundTask(str);
                         }
                     }
                 }
@@ -129,6 +129,7 @@ namespace MojioDotNet.Sample.Windows
                         var tokenBits = result.ResponseData;
                         var token = _manager.HandleTokenResponse(tokenBits);
                         if (token != null) settings.Values.Add(App.MojioStorageKey, tokenBits);
+                        App.RegisterBackgroundTask(tokenBits);
                     }
                     else
                     {

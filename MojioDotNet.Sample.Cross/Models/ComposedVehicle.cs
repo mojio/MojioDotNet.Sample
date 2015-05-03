@@ -1,21 +1,25 @@
-﻿using Mojio;
-using MojioDotNet.Sample.Cross.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Mojio;
+using MojioDotNet.Sample.Cross.Extensions;
 
 namespace MojioDotNet.Sample.Cross.Models
 {
     public class ComposedVehicle : INotifyPropertyChanged
     {
-        public IEnumerable<VehicleService> VehicleServiceSchedules
+        public List<ComposedVehicleService> VehicleService { get; set; }
+
+        public int EstimatedVehicleAgeInMonths
         {
-            get { return _vehicleServiceSchedules; }
-            set
+            get
             {
-                _vehicleServiceSchedules = value;
-                OnPropertyChanged();
+                if (VehicleDetails != null && VehicleDetails.Year != null)
+                {
+                    return (DateTime.Now.Year - VehicleDetails.Year) * 12;
+                }
+                return 0;
             }
         }
 
@@ -25,7 +29,7 @@ namespace MojioDotNet.Sample.Cross.Models
             {
                 if (Vehicle.FaultsDetected) return "Red";
 
-                if (Vehicle.LastBatteryVoltage.HasValue && Vehicle.LastBatteryVoltage.Value < 12) return "Yellow";
+                if (Vehicle.LastBatteryVoltage.HasValue && Vehicle.LastBatteryVoltage.Value < 9) return "Yellow";
 
                 return "Green";
             }

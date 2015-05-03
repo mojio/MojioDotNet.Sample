@@ -52,6 +52,7 @@
     <Compile Include="Models\ApplicationConfiguration.cs" />
     <Compile Include="Models\ComposedEvent.cs" />
     <Compile Include="Models\ComposedVehicle.cs" />
+    <Compile Include="Models\ComposedVehicleService.cs" />
     <Compile Include="Models\oAuthToken.cs" />
     <Compile Include="MojioManager.cs" />
     <Compile Include="ObservableEvents\AuthenticationEvent.cs" />

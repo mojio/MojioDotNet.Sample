@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace MojioDotNet.Sample.Cross
@@ -88,44 +89,184 @@ namespace MojioDotNet.Sample.Cross
                             Vehicle = vehicle,
                         };
 
+                        try
+                        {
+                            var details = (await _client.GetVehicleDetailsAsync(vehicle.Id)).Data;
+                            c.VehicleDetails = details;
+
+
+                            var service = await _client.GetVehicleServiceScheduleAsync(vehicle.Id);
+
+                            Dictionary<string, ComposedVehicleService> storedList =
+                                new Dictionary<string, ComposedVehicleService>();
+
+                            if (service != null && service.Data != null && service.Data.Data != null)
+                            {
+                                c.VehicleService = new List<ComposedVehicleService>();
+
+                                foreach (var s in service.Data.Data)
+                                {
+                                    string key = string.Format("{0}{1}{2}", s.IntervalType, s.Units, s.Value);
+                                    var odo = false;
+                                    var time = false;
+
+                                    if (!string.IsNullOrEmpty(s.Units))
+                                    {
+                                        if (timeUnits.Contains(s.Units))
+                                        {
+                                            time = true;
+                                            odo = false;
+                                        }
+                                        else
+                                        {
+                                            time = false;
+                                            odo = true;
+                                        }
+                                    }
+
+                                    if (odo || time)
+                                    {
+                                        bool add = false;
+                                        if (odo)
+                                        {
+
+                                            s.Value = FixOdo(s.Value);
+
+                                            if (s.IntervalType == "At")
+                                            {
+                                                if (vehicle.EstimatedOdometer.HasValue &&
+                                                    vehicle.EstimatedOdometer.Value <= s.Value)
+                                                {
+                                                    add = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                add = true;
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            if (s.IntervalType == "At" && c.VehicleDetails != null &&
+                                                c.VehicleDetails.Year > 0)
+                                            {
+                                                if (s.Units == "Months")
+                                                {
+                                                    if (c.EstimatedVehicleAgeInMonths < s.Value) add = true;
+                                                }
+                                                else if (s.Units == "Year")
+                                                {
+                                                    var months = s.Value*12;
+                                                    if (c.EstimatedVehicleAgeInMonths < months) add = true;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                add = true;
+
+                                            }
+                                        }
+
+                                        if (add)
+                                        {
+                                            if (storedList.ContainsKey(key))
+                                            {
+                                                var cvs = storedList[key];
+                                                cvs.SubServices.Add(s);
+                                            }
+                                            else
+                                            {
+
+                                                var cvs = new ComposedVehicleService()
+                                                {
+                                                    VehicleService = s,
+                                                    CurrentOdometer = vehicle.EstimatedOdometer,
+                                                    IsTimeBased = time,
+                                                };
+                                                c.VehicleService.Add(cvs);
+                                                storedList.Add(key, cvs);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (Exception)
+                        {
+                        }
+                        if (c.VehicleService != null && c.VehicleService.Count > 0)
+                        {
+                            c.VehicleService =
+                                c.VehicleService.OrderBy(z => z.VehicleService.IntervalType)
+                                    .ThenBy(z => z.VehicleService.Units)
+                                    .ThenBy(z => z.VehicleService.Value)
+                                    .ToList();
+                        }
                         composed.Add(c);
                     }
                 }
+
                 ComposedVehicles = composed;
                 Push(ComposedVehicles);
 
-                UpdateExtended();
             }
             catch (Exception e)
             {
-                throw;
             }
         }
 
+        private double FixOdo(double value)
+        {
+            string val = Math.Round(value,0).ToString();
+            if (val.Length <= 3) return value;
+
+            switch (val.Length)
+            {
+                case 4: //1,000
+                    val = string.Format("{0}000", val[0]);
+                    break;
+                case 5: //10,000
+                    val = string.Format("{0}{1}000", val[0], val[1]);
+                    break;
+                case 6: //100,000
+                    val = string.Format("{0}{1}{2}000", val[0], val[1], val[2]);
+                    break;
+            }
+            double newVal = value;
+            double.TryParse(val, out newVal);
+            return newVal;
+        }
+        List<string> timeUnits = new List<string>()
+        {
+            "Years", "Months", "Hours", "Weeks", "Minutes", "Seconds"
+        };
+
         private async Task UpdateExtended()
         {
-            //foreach (var v in ComposedVehicles)
-            //{
-            //    try
-            //    {
-            //        var details = (await _client.GetVehicleDetailsAsync(v.Vehicle.Id)).Data;
-            //        v.VehicleDetails = details;
-            //        Debug.WriteLine(string.Format("got vehicle details:{0}", v.Vehicle.Id));
-            //    }
-            //    catch (Exception e)
-            //    {
-            //    }
-            //    try
-            //    {
-            //        var vehicleServiceSchedules = (await _client.GetVehicleServiceScheduleAsync(v.Vehicle.Id)).Data.Data;
-            //        //v.VehicleServiceSchedules = vehicleServiceSchedules;
-            //        Debug.WriteLine(string.Format("got vehicle service schedules:{0}", v.Vehicle.Id));
-            //    }
-            //    catch (Exception e)
-            //    {
-            //    }
-            //}
-            //SetupObservers();
+            foreach (var v in ComposedVehicles)
+            {
+                try
+                {
+                    var details = (await _client.GetVehicleDetailsAsync(v.Vehicle.Id)).Data;
+                    v.VehicleDetails = details;
+                    Debug.WriteLine(string.Format("got vehicle details:{0}", v.Vehicle.Id));
+                }
+                catch (Exception e)
+                {
+                }
+                try
+                {
+                    var vehicleServiceSchedules = (await _client.GetVehicleServiceScheduleAsync(v.Vehicle.Id)).Data.Data;
+                    //v.VehicleServiceSchedules = vehicleServiceSchedules;
+                    Debug.WriteLine(string.Format("got vehicle service schedules:{0}", v.Vehicle.Id));
+                }
+                catch (Exception e)
+                {
+                }
+            }
+            SetupObservers();
             Push(ComposedVehicles);
         }
 
@@ -139,33 +280,27 @@ namespace MojioDotNet.Sample.Cross
 
                     try
                     {
-                        foreach (var v in this.ComposedVehicles)
+                        var lst = new List<ComposedVehicle>();
+                        var newstate = _client.UserVehiclesAsync(this.User.Id, 1).Result;
+                        if (newstate != null && newstate.Data != null && newstate.Data.Data != null)
                         {
-                            //var userEvents = _client.UserEventsAsync(this.User.Id, 1).Result;
-                            var vehicleEvents =
-                                _client.GetByAsync<Event, Vehicle>(v.Vehicle.Id, 0, "events", @event => @event.Time,
-                                    true).Result;
-                            if (vehicleEvents.Data != null && vehicleEvents.Data.Data != null)
+                            foreach (var v in newstate.Data.Data)
                             {
-                                //Debug.WriteLine("received:{0} events", vehicleEvents.Data.Data.Count());
-                                var events = DeDupEvents(v, vehicleEvents.Data.Data);
-                                foreach (var e in events)
-                                {
-                                    Debug.WriteLine("handling:{0} events", events.Count());
-                                    HandleEvent(v, e);
-                                }
+                                var vc = new ComposedVehicle() {Vehicle = v};
+                                var existing = (from x in this.ComposedVehicles where x.Vehicle.Id == v.Id select x).FirstOrDefault();
+                                if (existing != null) vc.VehicleDetails = existing.VehicleDetails;                                
+                                lst.Add(vc);                               
                             }
-                            else
-                            {
-                            }
+                            Push(lst);
                         }
-                        Push(ComposedVehicles);
                     }
                     catch (Exception)
                     {
+
+                        throw;
                     }
                 }
-            });
+            }, TaskCreationOptions.LongRunning);
         }
 
         private IEnumerable<Event> DeDupEvents(ComposedVehicle vehicle, IEnumerable<Event> incoming)

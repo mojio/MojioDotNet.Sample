@@ -35,7 +35,7 @@
                         <ProgressRing Visibility="{Binding HeaderVisibility}" IsEnabled="True" IsActive="True" />
                         <ListView
 					    ItemsSource="{Binding ComposedVehicles}"
-					    Grid.Row="2"
+					    
                         Tapped="UIElement_OnTapped"
 					    ContinuumNavigationTransitionInfo.ExitElementContainer="True">
                             <ListView.ItemTemplate>
